@@ -173,6 +173,8 @@ class BaseModelWorker:
     def get_embeddings(self, params):
         raise NotImplementedError
 
+    def value_inference_gate(self, params):
+        raise NotImplementedError
 
 def release_worker_semaphore():
     worker.semaphore.release()
@@ -207,6 +209,13 @@ async def api_generate(request: Request):
     release_worker_semaphore()
     return JSONResponse(output)
 
+@app.post("/worker_value_inference")
+async def value_inference(request: Request):
+    params = await request.json()
+    await acquire_worker_semaphore()
+    output = await asyncio.to_thread(worker.value_inference_gate, params)
+    release_worker_semaphore()
+    return JSONResponse(output)
 
 @app.post("/worker_get_embeddings")
 async def api_get_embeddings(request: Request):

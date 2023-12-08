@@ -64,6 +64,7 @@ class VLLMWorker(BaseModelWorker):
         self.call_ct += 1
 
         context = params.pop("prompt")
+        n = params.get("n", 1)
         request_id = params.pop("request_id")
         temperature = float(params.get("temperature", 1.0))
         top_p = float(params.get("top_p", 1.0))
@@ -96,7 +97,7 @@ class VLLMWorker(BaseModelWorker):
             top_p = 1.0
 
         sampling_params = SamplingParams(
-            n=1,
+            n=n,
             temperature=temperature,
             top_p=top_p,
             use_beam_search=use_beam_search,
@@ -118,7 +119,7 @@ class VLLMWorker(BaseModelWorker):
                 ]
             else:
                 text_outputs = [output.text for output in request_output.outputs]
-            text_outputs = " ".join(text_outputs)
+            # text_outputs = " ".join(text_outputs)
             # Note: usage is not supported yet
             prompt_tokens = len(request_output.prompt_token_ids)
             completion_tokens = sum(
@@ -134,6 +135,9 @@ class VLLMWorker(BaseModelWorker):
                 },
                 "cumulative_logprob": [
                     output.cumulative_logprob for output in request_output.outputs
+                ],
+                "output_token_len": [
+                    len(output.token_ids) for output in request_output.outputs
                 ],
                 "finish_reason": request_output.outputs[0].finish_reason
                 if len(request_output.outputs) == 1
