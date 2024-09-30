@@ -31,7 +31,7 @@ from fastchat.utils import (
     str_to_torch_dtype,
 )
 
-from tsllm.model import load_critic_model
+from model import load_critic_model
 from transformers import AutoTokenizer
 
 worker_id = str(uuid.uuid4())[:8]
@@ -39,7 +39,7 @@ logger = build_logger("model_worker", f"model_worker_{worker_id}.log")
 
 
 def tsllm_load_model(
-    critic_model_path, device: str = "cuda", value_model_type_name: str = "ValueHeadLLM"
+    critic_model_path, device: str = "cuda", value_model_type_name: str = "ValueHeadLLM", dtype='auto'
 ):
     model = load_critic_model(
         critic_model_path=critic_model_path,
