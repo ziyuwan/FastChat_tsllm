@@ -79,6 +79,7 @@ class VLLMWorker(BaseModelWorker):
         echo = params.get("echo", True)
         use_beam_search = params.get("use_beam_search", False)
         best_of = params.get("best_of", None)
+        include_stop_str_in_output = params.get("include_stop_str_in_output", False)
 
         # Handle stop_str
         stop = set()
@@ -87,9 +88,9 @@ class VLLMWorker(BaseModelWorker):
         elif isinstance(stop_str, list) and stop_str != []:
             stop.update(stop_str)
 
-        for tid in stop_token_ids:
-            if tid is not None:
-                stop.add(self.tokenizer.decode(tid))
+        # for tid in stop_token_ids:
+        #     if tid is not None:
+        #         stop.add(self.tokenizer.decode(tid))
 
         # make sampling params in vllm
         top_p = max(top_p, 1e-5)
@@ -108,7 +109,8 @@ class VLLMWorker(BaseModelWorker):
             presence_penalty=presence_penalty,
             frequency_penalty=frequency_penalty,
             best_of=best_of,
-            logprobs=1
+            logprobs=1,
+            include_stop_str_in_output=include_stop_str_in_output
         )
         results_generator = engine.generate(context, sampling_params, request_id)
 
